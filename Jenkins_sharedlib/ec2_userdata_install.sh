@@ -26,3 +26,8 @@ sudo chmod 777 /var/run/docker.sock
 
 # running sonarqube as a docker container 
 docker run -d --name sonarqube -p 9000:9000 -p 9092:9092 sonarqube
+
+# maven installtion 
+sudo apt update -y
+sudo apt install maven -y
+mvn -version
