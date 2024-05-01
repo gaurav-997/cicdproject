@@ -1,0 +1,80 @@
+pipeline{
+    agent any
+
+    tools{
+        java "jdk17"
+        maven "maven11"
+        terraform "terrafom"
+    
+    }
+
+    environment {
+        SCANNER_HOME= tool 'sonar_scanner'
+        IMAGE_TAG = "${BUILD_NUMBER}"
+    }
+    stages{
+        stage("clean workspace"){
+            steps{
+                cleanWs()
+                
+            }
+        }
+        stage("git checkout"){
+            steps{
+                git branch: 'main' , url: 'https://github.com/gaurav-997/terraform.git'
+            }
+        }
+        stage("maven cleanup"){
+            steps{
+                sh "mvn clean compile"
+            }
+        }
+        stage("sonar scan"){
+            steps{
+                ''' sh $SCANNER_HOMM/bin/sonar_scanner -Dsonar.url=http://13.126.27.109:9000/ -Dsonar.login=cilhuirehlcnlivhihcviri -Dsonar.projectName=shopping-cart \
+                -Dsonar.java.binaries=. \
+                -Dsonar.projectKey=shopping-cart  '''
+            }
+        }
+        stage("OWASP Dependency-Check Vulnerabilities"){
+            steps{
+                dependencyCheck additionalArguments: ' --scan ./', odcInstallation: 'OWASP Dependency-Check Vulnerabilities'
+                dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+            }
+        }
+        stage("build applicarion"){
+            steps{
+                sh "mvn clean install"
+            }
+        }
+        stage("docker build and push"){
+            steps{
+                sh '''
+                docker build -t gaurav7/cicd-e2e:${BUILD_NUMBER} .
+                docker push gaurav7/cicd-e2e:${BUILD_NUMBER}
+                docker run -d --name shopping-cart -p 8070:8070 gaurav/shopping:latest
+                '''
+            }
+        }
+        stage(""){
+            steps{
+                sh "mvn clean compile"
+            }
+        }
+        stage(""){
+            steps{
+                sh "mvn clean compile"
+            }
+        }
+        stage(""){
+            steps{
+                sh "mvn clean compile"
+            }
+        }
+        stage(""){
+            steps{
+                sh "mvn clean compile"
+            }
+        }
+    }
+}
