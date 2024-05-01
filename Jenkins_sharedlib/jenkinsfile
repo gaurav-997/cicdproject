@@ -20,14 +20,18 @@ pipeline{
                 git branch: 'main' , url: 'https://github.com/gaurav-997/cicdproject.git/Jenkins_sharedlib'
             }
         }
-        stage("A"){
+        stage("unit test maven"){
             steps{
-                sh ""
+                script{
+                    mvnTest()
+                }   
             }
         }
-        stage("A"){
+        stage("Integration test maven"){
             steps{
-                sh ""
+                script{
+                    mvnIntegrationTest()
+                }
             }
         }
         stage("A"){
