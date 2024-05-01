@@ -1,34 +1,49 @@
 pipeline{
-    agent{
-        label "node"
+    agent any
+
+    tools{
+        java "jdk17"
+        maven "maven11"
+    }
+
+    environment{
+        SCANNER_HOME= tool "sonar-scanner"
     }
     stages{
+        stage("clean workspace"){
+            steps{
+                cleanWs()
+            }
+        }
+        stage("git checkout"){
+            steps{
+                git branch: 'main' , url: 'https://github.com/gaurav-997/cicdproject.git'
+            }
+        }
         stage("A"){
             steps{
-                echo "========executing A========"
-            }
-            post{
-                always{
-                    echo "========always========"
-                }
-                success{
-                    echo "========A executed successfully========"
-                }
-                failure{
-                    echo "========A execution failed========"
-                }
+                sh ""
             }
         }
-    }
-    post{
-        always{
-            echo "========always========"
+        stage("A"){
+            steps{
+                sh ""
+            }
         }
-        success{
-            echo "========pipeline executed successfully ========"
+        stage("A"){
+            steps{
+                sh ""
+            }
         }
-        failure{
-            echo "========pipeline execution failed========"
+        stage("A"){
+            steps{
+                sh ""
+            }
+        }
+        stage("A"){
+            steps{
+                sh ""
+            }
         }
     }
 }
