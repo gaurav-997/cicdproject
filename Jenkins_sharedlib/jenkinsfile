@@ -1,5 +1,15 @@
+@Library('my-shared-library') _
+
 pipeline{
     agent any
+    
+    parameters{
+        choice(description: 'create or destory our application' name: 'action', choices: 'create\ndelete')
+        string(description: 'docker Build name',name: 'ImageName' ,defaultValue: 'javapp' )
+        string(description: 'docker Build tag',name: 'ImageTag' ,defaultValue: 'v1' )
+        string(description: 'docker application name',name: 'DockerHubUser' ,defaultValue: 'gchauhan1997' )
+
+    }
 
     tools{
         java "jdk17"
@@ -16,35 +26,69 @@ pipeline{
             }
         }
         stage("git checkout"){
+            when{ expression{ params.action == create}}
             steps{
-                git branch: 'main' , url: 'https://github.com/gaurav-997/cicdproject.git/Jenkins_sharedlib'
+                git branch: 'main' , url: 'https://github.com/gaurav-997/cicdproject.git/Jenkins_sharedlib'  
             }
         }
         stage("unit test maven"){
+            when{ expression{ params.action == create}}
             steps{
-                script{
-                    mvnTest()
-                }   
+                mvnTest()  
             }
         }
         stage("Integration test maven"){
+            when{ expression{ params.action == create}}
             steps{
-                script{
-                    mvnIntegrationTest()
-                }
+                mvnIntegrationTest()
+            }
+        }
+        stage("Stati code analysis: SonarQube "){
+            when{expression{ params.action == create}}
+            steps{
+                def SonarcredentialsId == 'jenkins'   # this is the sonartoken name
+                staticCodeAnalysis(SonarcredentialsId)
+            }
+        }
+        stage("Quality gate Status"){
+            when{expression{ params.action == create}}
+            steps{
+                def SonarcredentialsId == 'jenkins'   # this is the sonartoken name
+                qualityGateStatus(SonarcredentialsId)
+            }
+        }
+        stage("maven build"){
+            when{expression{ params.action == create}}
+            steps{
+                mavenBuild()
+            }
+        }
+        stage("Docker build "){
+            when{expression{ params.action == create}}
+            steps{
+                dockerBuild("${params.ImageName}","${params.ImageTag}","${params.DockerHubUser}")
+            }
+        }
+        stage("trivy file scan"){
+            when{expression{ params.action == create}}
+            steps{
+                trivyFileScan("${params.ImageName}","${params.ImageTag}","${params.DockerHubUser}")
+            }
+        }
+        stage("docker push"){
+            when{expression{ params.action == create}}
+            steps{
+                dockerPush("${params.ImageName}","${params.ImageTag}","${params.DockerHubUser}")
             }
         }
         stage("A"){
+            when{expression{ params.action == create}}
             steps{
                 sh ""
             }
         }
         stage("A"){
-            steps{
-                sh ""
-            }
-        }
-        stage("A"){
+            when{expression{ params.action == create}}
             steps{
                 sh ""
             }

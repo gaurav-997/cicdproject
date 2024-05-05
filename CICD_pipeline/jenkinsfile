@@ -61,20 +61,5 @@ pipeline{
                 sh "mvn clean compile"
             }
         }
-        stage(""){
-            steps{
-                sh "mvn clean compile"
-            }
-        }
-        stage(""){
-            steps{
-                sh "mvn clean compile"
-            }
-        }
-        stage(""){
-            steps{
-                sh "mvn clean compile"
-            }
-        }
     }
 }
