@@ -8,6 +8,8 @@ pipeline{
         string(description: 'docker Build name',name: 'ImageName' ,defaultValue: 'javapp' )
         string(description: 'docker Build tag',name: 'ImageTag' ,defaultValue: 'v1' )
         string(description: 'docker application name',name: 'DockerHubUser' ,defaultValue: 'gchauhan1997' )
+        string(description: 'AWS region',name: 'region' ,defaultValue: 'us-east-1' )
+        string(description: 'EKS clustername',name: 'cluster_name' ,defaultValue: 'demo-cluster1' )
 
     }
 
@@ -106,11 +108,18 @@ pipeline{
                     sh """
                     aws configure set aws_access_key ${ACCESS_AWS_KEY}
                     aws configure set aws_secret_key ${SECRET_AWS_KEY}
-                    aws configure set aws_region 
-                 
+                    aws configure set region 
+                    aws eks update-kubeconfig --region ${parms.region} --name ${params.cluster_name}
                     """
                 }
         
+            }
+        }
+        stage("eks deployment"){
+            steps{
+                sh"""
+                kubectl apply -f .
+                """
             }
         }
     }
