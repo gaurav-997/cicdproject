@@ -11,6 +11,11 @@ pipeline{
 
     }
 
+    environment{
+        ACCESS_AWS_KEY = credentials('AWS_ACCESS_KEY_ID')
+        SECRET_AWS_KEY = credentials('AWS_SECRET_KEY_ID')
+    }
+
     tools{
         java "jdk17"
         maven "maven11"
@@ -81,16 +86,31 @@ pipeline{
                 dockerPush("${params.ImageName}","${params.ImageTag}","${params.DockerHubUser}")
             }
         }
-        stage("A"){
+        stage("EKS cluster create with terraform"){
             when{expression{ params.action == create}}
             steps{
-                sh ""
+                script{
+                    dir('eks_module'){
+                        sh """
+                            terraform init 
+                            terraform plan --var 'access_key=${ACCESS_AWS_KEY}' --var 'secret_key=${SECRET_AWS_KEY}' --var-file=./config/terraform.tfvars
+                            terraform apply --var 'access_key=${ACCESS_AWS_KEY}' --var 'secret_key=${SECRET_AWS_KEY}' --var-file=./config/terraform.tfvars --auto-approve
+                        """
+                    }
+                }
             }
         }
-        stage("A"){
-            when{expression{ params.action == create}}
+        stage("connect to EKS"){
             steps{
-                sh ""
+                script{
+                    sh """
+                    aws configure set aws_access_key ${ACCESS_AWS_KEY}
+                    aws configure set aws_secret_key ${SECRET_AWS_KEY}
+                    aws configure set aws_region 
+                 
+                    """
+                }
+        
             }
         }
     }

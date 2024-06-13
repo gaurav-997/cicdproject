@@ -1,5 +1,3 @@
-
-
 resource "aws_eks_node_group" "nodes_general" {
   # Name of the EKS Cluster.
   cluster_name = var.eks_cluster_name
